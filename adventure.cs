@@ -18,7 +18,7 @@ namespace asciiadventure {
         }
 
         private static string Menu() {
-            return "WASD to move\nIJKL to attack/interact\nEnter command: ";
+            return "Your goal is to get the treasure(T)\nWASD to move\nIJKL to attack/interact\nBeware of the mobs(#)\nAnd the mines(X)\nEnter command: ";
         }
 
         private static void PrintScreen(Screen screen, string message, string menu) {
@@ -28,7 +28,7 @@ namespace asciiadventure {
             Console.WriteLine($"\n{menu}");
         }
         public void Run() {
-            Console.ForegroundColor = ConsoleColor.Green;
+            Console.ForegroundColor = ConsoleColor.White;
 
             Screen screen = new Screen(10, 10);
             // add a couple of walls
@@ -42,12 +42,21 @@ namespace asciiadventure {
             // add a player
             Player player = new Player(0, 0, screen, "Zelda");
             
-            // add a treasure
-            Treasure treasure = new Treasure(6, 2, screen);
+            // add a treasure at a random location
+            int tRow = random.Next(1,9);
+            int tCol = random.Next(1,9);
+            Treasure treasure = new Treasure(tRow, tCol, screen);
+            
+
+            // add a mine at a random locations
+            int mRow = random.Next(3,9);
+            int mCol = random.Next(1,9);
+            Mine mine = new Mine(mRow, mCol, screen);
 
             // add some mobs
             List<Mob> mobs = new List<Mob>();
             mobs.Add(new Mob(9, 9, screen));
+            
             
             // initially print the game board
             PrintScreen(screen, "Welcome!", Menu());
@@ -63,7 +72,7 @@ namespace asciiadventure {
                     break;
                 } else if (Eq(input, 'w')) {
                     player.Move(-1, 0);
-                } else if (Eq(input, 's')) {
+                }  else if (Eq(input, 's')) {
                     player.Move(1, 0);
                 } else if (Eq(input, 'a')) {
                     player.Move(0, -1);
@@ -84,6 +93,27 @@ namespace asciiadventure {
                     message = $"Unknown command: {input}";
                 }
 
+                if(!treasure.isPresent && player.numT<5) { //add a new treasure when one is collected also add another mob
+                treasure= new Treasure(random.Next(1,9), random.Next(1,9), screen);
+                int ranRow = random.Next(1,9);
+                int ranCol = random.Next(4,9);
+                if (!(screen[ranRow, ranCol] is GameObject))
+                    mobs.Add(new Mob(ranRow, ranCol, screen));
+                }
+
+                if (player.numT>4){ //player wins when 5 treasures are collected
+                    message += "YOU WIN!\n ALL TREASURES COLLECTED";
+                    gameOver = true;
+                }
+
+                if (screen[mRow, mCol] is Player){// the player stepped on a mine
+                    if (!mine.isDefused){
+                        mine.Token = "*";
+                        message += "GAME OVER!\nYOU STEPPED ON A MINE!\n";
+                        gameOver = true;
+                    }
+                }
+
                 // OK, now move the mobs
                 foreach (Mob mob in mobs){
                     // TODO: Make mobs smarter, so they jump on the player, if it's possible to do so
@@ -97,7 +127,7 @@ namespace asciiadventure {
                     if (screen[mob.Row + deltaRow, mob.Col + deltaCol] is Player){
                         // the mob got the player!
                         mob.Token = "*";
-                        message += "A MOB GOT YOU! GAME OVER\n";
+                        message += "GAME OVER!\n A MOB GOT YOU!\n";
                         gameOver = true;
                     }
                     mob.Move(deltaRow, deltaCol);

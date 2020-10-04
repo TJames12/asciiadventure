@@ -42,6 +42,11 @@ namespace asciiadventure {
         public void Delete() {
             Screen[Row, Col] = null;
         }
+
+        // for mines
+         public Boolean isDefused = false;
+
+         public Boolean isPresent = true;
     }
 
     public abstract class MovingGameObject : GameObject {
@@ -83,8 +88,12 @@ namespace asciiadventure {
 
     class Treasure : GameObject {
         public Treasure(int row, int col, Screen screen) : base(row, col, "T", screen) {}
+    }
 
-        public override Boolean IsPassable() {
+    class Mine : GameObject {
+        public Mine(int row, int col, Screen screen) : base(row, col, "X", screen) {}
+
+        public override bool IsPassable() {
             return true;
         }
     }

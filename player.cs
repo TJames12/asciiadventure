@@ -13,6 +13,7 @@ namespace asciiadventure {
             return true;
         }
 
+        public int numT = 0;
         public String Action(int deltaRow, int deltaCol){
             int newRow = Row + deltaRow;
             int newCol = Col + deltaCol;
@@ -24,9 +25,18 @@ namespace asciiadventure {
                 return "negative";
             }
             // TODO: Interact with the object
+            
             if (other is Treasure){
                 other.Delete();
-                return "Yay, we got the treasure!";
+                numT++;
+                other.isPresent = false;
+                return "Treasure collected! Total Treasures: " + numT;
+               
+            }
+            if (other is Mine){
+                other.Delete();
+                other.isDefused = true;
+                return "Mine defused";
             }
             return "ouch";
         }
