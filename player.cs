@@ -24,7 +24,6 @@ namespace asciiadventure {
             if (other == null){
                 return "negative";
             }
-            // TODO: Interact with the object
             
             if (other is Treasure){
                 other.Delete();
