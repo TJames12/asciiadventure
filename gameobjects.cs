@@ -46,7 +46,11 @@ namespace asciiadventure {
         // for mines
          public Boolean isDefused = false;
 
+        // for treasures
          public Boolean isPresent = true;
+
+        // for mobs
+        public Boolean isDead = false;
     }
 
     public abstract class MovingGameObject : GameObject {
@@ -60,16 +64,6 @@ namespace asciiadventure {
                 return "";
             }
             GameObject gameObject = Screen[newRow, newCol];
-            if (gameObject != null && !gameObject.IsPassable()) {
-                // TODO: How to handle other objects?
-                // walls just stop you
-                // objects can be picked up
-                // people can be interactd with
-                // also, when you move, some things may also move
-                // maybe i,j,k,l can attack in different directions?
-                // can have a "shout" command, so some objects require shouting
-                return "TODO: Handle interaction";
-            }
             // Now just make the move
             int originalRow = Row;
             int originalCol = Col;

@@ -3,13 +3,6 @@ using System.Text;
 using System.Linq;
 using System.Collections.Generic;
 
-/*
- Cool ass stuff people could implement:
- > jumping
- > attacking
- > randomly moving monsters
- > smarter moving monsters
-*/
 namespace asciiadventure {
     public class Game {
         private Random random = new Random();
@@ -18,7 +11,7 @@ namespace asciiadventure {
         }
 
         private static string Menu() {
-            return "Your goal is to get the treasure(T)\nWASD to move\nIJKL to attack/interact\nBeware of the mobs(#)\nAnd the mines(X)\nEnter command: ";
+            return "Your goal is to collect all of the treasure(T)\nWASD to move\nIJKL to collect treasure/defuse mines\nBeware of the mobs(#)\nAnd the mines(X)\nQ to quit\n";
         }
 
         private static void PrintScreen(Screen screen, string message, string menu) {
@@ -94,12 +87,25 @@ namespace asciiadventure {
                 }
 
                 if(!treasure.isPresent && player.numT<5) { //add a new treasure when one is collected also add another mob
-                treasure= new Treasure(random.Next(1,9), random.Next(1,9), screen);
-                int ranRow = random.Next(1,9);
-                int ranCol = random.Next(4,9);
-                if (!(screen[ranRow, ranCol] is GameObject))
-                    mobs.Add(new Mob(ranRow, ranCol, screen));
+                    int newTRow = random.Next(1,9);
+                    int newTCol = random.Next(1,9);
+                    if ((screen[newTRow, newTCol] is GameObject)) { //Check to make sure treasure isnt being added in place of another object
+                         newTRow = random.Next(1,9);
+                         newTCol = random.Next(1,9);
+                    }
+                    treasure = new Treasure(newTRow, newTCol, screen);
+                    
+                    int newMobRow = random.Next(1,9);
+                    int newMobCol = random.Next(4,9);
+                    if ((screen[newMobRow, newMobCol] is GameObject)) { //Check to make sure mob isnt being added in place of another object
+                         newMobRow = random.Next(1,9);
+                         newMobCol = random.Next(4,9);
+                    }
+                    mobs.Add(new Mob(newMobRow, newMobCol, screen));
                 }
+
+                    
+                
 
                 if (player.numT>4){ //player wins when 5 treasures are collected
                     message += "YOU WIN!\n ALL TREASURES COLLECTED";
@@ -109,7 +115,7 @@ namespace asciiadventure {
                 if (screen[mRow, mCol] is Player){// the player stepped on a mine
                     if (!mine.isDefused){
                         mine.Token = "*";
-                        message += "GAME OVER!\nYOU STEPPED ON A MINE!\n";
+                        message += "GAME OVER!\nBOOM! YOU STEPPED ON A MINE!\n";
                         gameOver = true;
                     }
                 }
@@ -123,14 +129,25 @@ namespace asciiadventure {
                     }
                     // mobs move randomly
                     var (deltaRow, deltaCol) = moves[random.Next(moves.Count)];
+
+                    if (screen[mob.Row + deltaRow, mob.Col + deltaCol] is Mine){
+                        // the mob stepped on a mine!
+                        mob.Token = "O";
+                        message += "BOOM!\n";
+                        mob.Delete();
+                        mob.isDead = true;
+                        mine.isDefused = true;
+                        mine.Delete();
+                    }
                     
-                    if (screen[mob.Row + deltaRow, mob.Col + deltaCol] is Player){
+                    if (screen[mob.Row + deltaRow, mob.Col + deltaCol] is Player && !mob.isDead){
                         // the mob got the player!
                         mob.Token = "*";
                         message += "GAME OVER!\n A MOB GOT YOU!\n";
                         gameOver = true;
                     }
-                    mob.Move(deltaRow, deltaCol);
+                    if (!mob.isDead)
+                        mob.Move(deltaRow, deltaCol);
                 }
 
                 PrintScreen(screen, message, Menu());
