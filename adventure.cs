@@ -80,7 +80,7 @@ namespace asciiadventure {
                 } else if (Eq(input, 'l')) {
                     message += player.Action(0, 1) + "\n";
                 } else if (Eq(input, 'v')) {
-                    // TODO: handle inventory
+                    
                     message = "You have nothing\n";
                 } else {
                     message = $"Unknown command: {input}";
@@ -122,7 +122,6 @@ namespace asciiadventure {
 
                 // OK, now move the mobs
                 foreach (Mob mob in mobs){
-                    // TODO: Make mobs smarter, so they jump on the player, if it's possible to do so
                     List<Tuple<int, int>> moves = screen.GetLegalMoves(mob.Row, mob.Col);
                     if (moves.Count == 0){
                         continue;
